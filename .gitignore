@@ -1,0 +1,9 @@
+# mkcert-generated certificates and private keys — never commit these.
+# Recreate with: node proxy.mjs --certs
+certs/
+
+# Your real configuration: hostnames, upstreams, internal addresses.
+# Start from devproxy.config.example.json.
+devproxy.config.json
+
+.DS_Store

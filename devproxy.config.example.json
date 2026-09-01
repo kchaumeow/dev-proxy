@@ -1,0 +1,15 @@
+{
+  "connectTimeoutMs": 15000,
+
+  "sites": [
+    {
+      "name": "my-app",
+      "host": "app.example.com",
+      "upstream": "https://app.example.com",
+      "rules": [
+        { "path": "/api", "target": "upstream" },
+        { "path": "/", "target": "http://localhost:5173" }
+      ]
+    }
+  ]
+}
