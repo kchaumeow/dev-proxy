@@ -1,0 +1,25 @@
+{
+  "name": "devproxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A configurable local reverse proxy for developing against a real deployment.",
+  "type": "module",
+  "bin": {
+    "devproxy": "./proxy.ts"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node proxy.ts",
+    "doctor": "node proxy.ts --doctor",
+    "certs": "node proxy.ts --certs",
+    "hosts": "node proxy.ts --hosts",
+    "typecheck": "tsc",
+    "typecheck:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "typescript": "^7.0.2"
+  }
+}

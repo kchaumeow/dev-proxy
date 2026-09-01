@@ -1,5 +1,9 @@
+# Dev-time TypeScript toolchain (typescript + @types/node). Nothing here is
+# needed to run the proxy — Node strips the types itself.
+node_modules/
+
 # mkcert-generated certificates and private keys — never commit these.
-# Recreate with: node proxy.mjs --certs
+# Recreate with: node proxy.ts --certs
 certs/
 
 # Your real configuration: hostnames, upstreams, internal addresses.

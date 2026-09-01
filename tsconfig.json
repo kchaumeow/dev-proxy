@@ -1,0 +1,36 @@
+{
+  // Node runs these files directly, stripping the types without reading this
+  // file (it ignores tsconfig.json entirely). So nothing here can change what
+  // executes — tsc is only ever a checker: `npm run typecheck`.
+  //
+  // Two consequences shape the options below. Every local import must carry
+  // its real ".ts" extension, which needs allowImportingTsExtensions + noEmit.
+  // And every construct must be erasable, which erasableSyntaxOnly enforces:
+  // no enums, no namespaces with runtime code, no parameter properties, no
+  // "export =". Without that flag tsc would happily accept code Node refuses
+  // to run.
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["es2023"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["proxy.ts", "src/**/*.ts"]
+}

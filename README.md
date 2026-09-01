@@ -27,13 +27,17 @@ bypassed.
 
 ## Setup (once)
 
+Needs **Node >= 22.18** and nothing else: the proxy is TypeScript that Node runs
+directly by stripping the types, so there is no build step and no runtime
+dependency to install.
+
 ```sh
 brew install mkcert
 mkcert -install                   # installs a local CA the browsers trust
 
 cp devproxy.config.example.json devproxy.config.json   # then edit it
-node ~/tools/devproxy/proxy.mjs --certs
-sudo node ~/tools/devproxy/proxy.mjs --hosts-write
+node ~/tools/devproxy/proxy.ts --certs
+sudo node ~/tools/devproxy/proxy.ts --hosts-write
 ```
 
 `devproxy.config.json` and `certs/` are gitignored — they hold your hostnames
@@ -47,7 +51,7 @@ back out — do that when you want the real site again.
 
 ```sh
 cd ~/projects/my-app/frontend && pnpm dev          # terminal 1
-node ~/tools/devproxy/proxy.mjs                    # terminal 2
+node ~/tools/devproxy/proxy.ts                     # terminal 2
 ```
 
 Then open <https://app.example.com>.
@@ -57,7 +61,7 @@ No `sudo`: macOS lets a normal user bind :80 and :443. Should yours refuse
 the sockets are open. If something is off:
 
 ```sh
-node ~/tools/devproxy/proxy.mjs --doctor
+node ~/tools/devproxy/proxy.ts --doctor
 ```
 
 which checks the hosts entries, certificate validity and coverage, port
@@ -195,6 +199,41 @@ Append a site. Nothing else is per-project:
 }
 ```
 
-Then `node proxy.mjs --certs && sudo node proxy.mjs --hosts-write`.
+Then `node proxy.ts --certs && sudo node proxy.ts --hosts-write`.
 
 Run a single site with `--site admin`.
+
+## Development
+
+The types are checked by `tsc`, never used to build anything — Node strips them
+at load time and ignores `tsconfig.json` entirely. So the checker is optional to
+*run* the proxy and mandatory before trusting a change:
+
+```sh
+npm install        # typescript + @types/node, dev-only
+npm run typecheck  # tsc, no emit
+```
+
+Because Node does the stripping, every construct has to be erasable —
+`erasableSyntaxOnly` enforces that, so `tsc` rejects an enum or a parameter
+property rather than letting Node fail at runtime. Local imports carry their
+real `.ts` extension for the same reason.
+
+`proxy.ts` is the entry point: argument parsing and command dispatch. Everything
+else lives in `src/`:
+
+| file | what it owns |
+|---|---|
+| `types.ts` | the config schema (`Raw*`) and the normalized shapes |
+| `constants.ts` | hop-by-hop header list, local-name and IP predicates, paths |
+| `log.ts` | colour, verbosity, `die`, reading `code` off unknown errors |
+| `config.ts` | JSON-with-comments parsing, defaults, validation |
+| `resolve.ts` | the `/etc/hosts` bypass, the DNS cache, SNI naming |
+| `match.ts` | rule matching and the outbound path |
+| `rewrite.ts` | request and response header surgery |
+| `proxy.ts` | the request path and the Upgrade path |
+| `serve.ts` | binding ports, SNI cert selection, dropping root |
+| `doctor.ts` | the `--doctor` checks |
+| `certs.ts` | mkcert invocation |
+| `hosts.ts` | the marked `/etc/hosts` block |
+
