@@ -32,5 +32,5 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["proxy.ts", "src/**/*.ts"]
+  "include": ["proxy.ts", "src/**/*.ts", "test/**/*.ts"]
 }

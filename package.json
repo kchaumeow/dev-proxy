@@ -15,8 +15,11 @@
     "doctor": "node proxy.ts --doctor",
     "certs": "node proxy.ts --certs",
     "hosts": "node proxy.ts --hosts",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "test:unit": "node --test \"test/unit/*.test.ts\"",
+    "test:integration": "node --test \"test/integration/*.test.ts\"",
     "typecheck": "tsc",
-    "typecheck:watch": "tsc --watch"
+    "check": "npm run typecheck && npm test"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

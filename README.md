@@ -212,6 +212,8 @@ at load time and ignores `tsconfig.json` entirely. So the checker is optional to
 ```sh
 npm install        # typescript + @types/node, dev-only
 npm run typecheck  # tsc, no emit
+npm test           # node --test, no framework
+npm run check      # both
 ```
 
 Because Node does the stripping, every construct has to be erasable —
@@ -236,4 +238,29 @@ else lives in `src/`:
 | `doctor.ts` | the `--doctor` checks |
 | `certs.ts` | mkcert invocation |
 | `hosts.ts` | the marked `/etc/hosts` block |
+
+### Tests
+
+`npm test` — 135 tests on the built-in runner, no test framework and no test
+dependency. They fall into two kinds:
+
+`test/unit/` imports the pure functions directly: rule matching and outbound
+paths, every header and cookie rewrite, and the config layer's defaults. Its
+fixtures are built by running the real `loadConfig` over a scratch file rather
+than hand-assembling objects, so a fixture cannot drift from what the proxy
+actually receives.
+
+`test/integration/` starts real origin servers on ephemeral ports and drives a
+real `node proxy.ts` child process, so argument parsing, config loading, port
+binding, routing, streaming and the WebSocket splice are all covered end to end.
+The origins record what they were sent, which is what the assertions read — a
+test checks the header the proxy *forwarded*, not an echo the origin chose to
+return. `test/integration/cli.test.ts` covers the refusals, which need a
+subprocess because `die()` exits the process.
+
+`test/integration/tls.test.ts` needs mkcert and its local CA to sign
+certificates, and skips itself where those are missing. It puts two hostnames
+with two different certificates on one port, so the SNI callback has to pick
+the right one. Its assertions read the SAN, not the subject CN — current mkcert
+leaves the CN empty.
 
